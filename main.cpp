@@ -15,6 +15,10 @@ uint64_t to_bytes(const unsigned char *array) {
 
 // Usage: main <file-path>
 int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        std::cout << "Usage: main <records-file-path>" << std::endl;
+        return 1;
+    }
     char* file_path = argv[1];
     auto f_cache = FileCache((char *) file_path, 10000, 1 << 10, false);
     uint64_t record_id = 155566;

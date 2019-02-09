@@ -1,7 +1,7 @@
 //
 // Created by alex on 2/8/19.
 //
-
+#include <iostream>
 #include "cache.h"
 #include <fcntl.h>
 #include <unistd.h>
@@ -69,4 +69,5 @@ FileCache::FileCache(char *filename, int max_num_nodes, int block_sz, bool direc
     this->fd = _fd;
     this->num_nodes_limit = max_num_nodes;
     this->block_sz = block_sz;
+    this->head = this->tail = nullptr;
 }

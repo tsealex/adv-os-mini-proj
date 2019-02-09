@@ -4,11 +4,18 @@ MAX_INT = 2 << 63 - 1
 
 
 def create_records(num_records):
+    b = bytearray()
+    one_mb = 2 ** 26
     with open('records', 'wb') as f:
         for i in range(num_records):
-            f.write(i.to_bytes(8, byteorder='little'))
-            f.write(random.randint(0, MAX_INT).to_bytes(8, byteorder='little'))
-
+            b.extend(i.to_bytes(8, byteorder='little'))
+            b.extend(random.randint(0, MAX_INT).to_bytes(8, byteorder='little'))
+            if len(b) > one_mb:
+                print('Writing ...')
+                f.write(bytes(b))
+                b.clear()
+                print(f'Written {i} records (total: {num_records})')
+        f.write(bytes(b))
 
 # For verifying the script is working.
 # with open('records', 'rb') as f:
@@ -20,4 +27,4 @@ def create_records(num_records):
 
 
 # Create a list of records, each consists two 8-byte integers.
-create_records(2 ** 30 // 16)  # ~2 GB data = ~67M records
+create_records(2 ** 30 // 16 * 3)  # ~3 GB data

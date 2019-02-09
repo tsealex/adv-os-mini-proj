@@ -13,8 +13,10 @@ uint64_t to_bytes(const unsigned char *array) {
            static_cast<uint64_t>(array[7]) << 56;
 }
 
-int main() {
-    auto f_cache = FileCache((char *) "/home/alex/Projects/CS736/mini-project/records", 10000, 1 << 10, false);
+// Usage: main <file-path>
+int main(int argc, char *argv[]) {
+    char* file_path = argv[1];
+    auto f_cache = FileCache((char *) file_path, 10000, 1 << 10, false);
     uint64_t record_id = 155566;
     auto v = f_cache.Read(16 * record_id + 8);
     std::cout << to_bytes(f_cache.Read(16 * record_id)) << ": " << to_bytes(v) << std::endl;

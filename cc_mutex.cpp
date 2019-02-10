@@ -11,7 +11,7 @@
 uint32_t counter = 0;
 uint32_t inc = 1;
 
-auto target_num = 10000000; //(uint32_t) ~0;
+auto target_num = 100000000; //(uint32_t) ~0;
 pthread_spinlock_t spinlock;
 pthread_mutex_t mutex;
 
@@ -69,7 +69,7 @@ void count_test(int num_threads, bool spin) {
 //    } else {
 //        while (counter < target_num) {
 //            pthread_mutex_lock(&mutex);
-//            pthread_mutex_lock(&mutex);
+//            pthread_mutex_unlock(&mutex);
 //        }
 //    }
     auto end = std::chrono::system_clock::now();

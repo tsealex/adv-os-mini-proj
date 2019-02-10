@@ -43,9 +43,7 @@ void test(char *filepath, int num_mb, bool direct_io) {// Allocate the memory bu
     free(mem_buf);
 }
 
-// TODO: Generate the data file with `truncate -s 2g /data/2GB.file`
-// TODO: Build with `g++ ./directio.cpp -o directio`
-// TODO: Run with `./directio /data/2GB.file < ./directio.testcase > ./directio.csv`.
+// TODO: Run with `./fs_directio /data/2GB.file < ./fs_directio.testcase > ./fs_directio.csv`.
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cout << "Usage: main <records-file-path>" << std::endl;

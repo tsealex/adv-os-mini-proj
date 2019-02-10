@@ -18,12 +18,13 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option) {
 }
 
 
-void test(char *filepath, int num_mb, bool direct_io) {// Allocate the memory buffer.
+void test(char *filepath, int num_mb, bool direct_io) {
     int read_sz = num_mb * (1 << 20);
     int flag = O_RDONLY;
     if (direct_io) {
         flag |= O_DIRECT;
     }
+    // Allocate the memory buffer.
     auto mem_buf = (unsigned char *) malloc(read_sz);
     // Start timing.
     auto start = std::chrono::system_clock::now();
@@ -46,7 +47,7 @@ void test(char *filepath, int num_mb, bool direct_io) {// Allocate the memory bu
 // TODO: Run with `./fs_directio /data/2GB.file < ./fs_directio.testcase > ./fs_directio.csv`.
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        std::cout << "Usage: main <records-file-path>" << std::endl;
+        std::cout << "Usage: fs_directio <data-file-path>" << std::endl;
         return 1;
     }
     // Parse arguments.

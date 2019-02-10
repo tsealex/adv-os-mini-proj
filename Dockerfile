@@ -1,12 +1,8 @@
 FROM debian:latest
 
-RUN apt-get update -qq && apt install build-essential wget cmake -qqy
+RUN apt-get update -qq && apt install build-essential -qqy && mkdir /data
 
-WORKDIR /cmake
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.14.0-rc1/cmake-3.14.0-rc1.tar.gz && \
-    tar -xzvf ./cmake-3.14.0-rc1.tar.gz
+WORKDIR /project
 
-RUN cd ./cmake-3.14.0-rc1 && ./bootstrap && make -j4 && make install
-
-# TODO: Run with (-m option specifies memory size).
-#       docker run -it -v ~\Projects\CS736:/data -m="10m" <image-name> bash
+# TODO: Build with `docker build -t cs736/mini-project .`
+# TODO: Go to this project and run `docker run -it -v ~/Projects/CS736/mini-project:/project -m="1g" cs736/mini-project bash`

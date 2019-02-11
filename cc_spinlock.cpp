@@ -109,8 +109,8 @@ int main(int argc, char *argv[]) {
 
     if (n > 0) {
         std::cout << "num_threads,spin,time,num_counters" << std::endl;
+        auto seed = time(NULL);
         for (int j = 0; j < n; j++) {
-            auto seed = time(NULL);
             srand(seed);
             count_test(args[j][0], args[j][1], true);
             srand(seed);

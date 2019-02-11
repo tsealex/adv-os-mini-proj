@@ -25,7 +25,7 @@ counter_set *new_counter_set(int size) {
     res->counters = (uint32_t *) malloc(sizeof(uint32_t) * size);
     res->spinlocks = (pthread_spinlock_t *) malloc(sizeof(pthread_spinlock_t) * size);
     for (int i = 0; i < size; i++) {
-        res->counters[i] = res->target_num / size;
+        res->counters[i] = 0;
         pthread_spin_init(&res->spinlocks[i], 0);
         pthread_mutex_init(&res->mutex[i], nullptr);
     }
@@ -44,14 +44,10 @@ void *spin_count(void *s_ptr) {
     auto s = (counter_set *) s_ptr;
     auto num = s->target_num / s->size;
     while (num > 0) {
-        auto i = num % s->size;
-        if (s->counters[i] > 0) {
-            pthread_spin_lock(&s->spinlocks[i]);
-            if (s->counters[i] > 0) {
-                s->counters[i]--;
-            }
-            pthread_spin_unlock(&s->spinlocks[i]);
-        }
+        auto i = rand() % s->size;
+        pthread_spin_lock(&s->spinlocks[i]);
+        s->counters[i]++;
+        pthread_spin_unlock(&s->spinlocks[i]);
         num--;
     }
     pthread_exit(nullptr);
@@ -62,14 +58,10 @@ void *mutex_count(void *s_ptr) {
     auto s = (counter_set *) s_ptr;
     auto num = s->target_num / s->size;
     while (num > 0) {
-        auto i = num % s->size;
-        if (s->counters[i] > 0) {
-            pthread_mutex_lock(&s->mutex[i]);
-            if (s->counters[i] > 0) {
-                s->counters[i]--;
-            }
-            pthread_mutex_unlock(&s->mutex[i]);
-        }
+        auto i = rand() % s->size;
+        pthread_mutex_lock(&s->mutex[i]);
+        s->counters[i]++;
+        pthread_mutex_unlock(&s->mutex[i]);
         num--;
     }
     pthread_exit(nullptr);
@@ -118,7 +110,10 @@ int main(int argc, char *argv[]) {
     if (n > 0) {
         std::cout << "num_threads,spin,time,num_counters" << std::endl;
         for (int j = 0; j < n; j++) {
+            auto seed = time(NULL);
+            srand(seed);
             count_test(args[j][0], args[j][1], true);
+            srand(seed);
             count_test(args[j][0], args[j][1], false);
         }
     }

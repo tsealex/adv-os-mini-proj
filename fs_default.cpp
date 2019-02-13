@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <fcntl.h>
 #include <cstring>
+#include <sys/stat.h>
 #include <unistd.h>
 
 char *getCmdOption(char **begin, char **end, const std::string &option) {
@@ -20,8 +21,14 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option) {
     return std::find(begin, end, option) != end;
 }
 
+size_t getBlockSize(const char *filepath) {
+    struct stat fstat;
+    stat(filepath, &fstat);
+    return (size_t) fstat.st_blksize;
+}
+
 //void test_random_write(char *filepath, int write_range, bool direct_io) {
-//    auto wr_data = (char*)malloc(sizeof(char) * 1024); // 1KB
+//    auto wr_data = (char *) malloc(sizeof(char) * 1024); // 1KB
 //    int flag = O_WRONLY;
 //    if (direct_io) {
 //        flag |= O_DIRECT;
@@ -49,32 +56,50 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option) {
 //}
 
 void test_repeated_write(char *filepath, int num_writes, bool direct_io) {
-    uint32_t wr_sz = 1 << 20; // 1MB
-    auto wr_data = (char*)malloc(sizeof(char) * wr_sz);
-    int flag = O_WRONLY;
+    void *buf;
+    uint32_t wr_sz = 10 * (1 << 20); // 10MB
+    int flag = O_RDWR;
     if (direct_io) {
-        flag |= O_DIRECT;
+        flag |= O_DIRECT | O_SYNC;
+    }
+    if (posix_memalign(&buf, getBlockSize(filepath), wr_sz) == -1) {
+        std::cerr << "Align Error: " << strerror(errno) << std::endl;
+        exit(1);
     }
     // Start timing.
     auto start = std::chrono::system_clock::now();
     // Open the file for writing.
     auto fd = open(filepath, flag);
+    if (fd < 0) {
+        std::cerr << "Open Error: " << strerror(errno) << std::endl;
+        exit(1);
+    }
     // Start writing.
     for (int i = 0; i < num_writes; i++) {
         lseek64(fd, 0, SEEK_SET);
-        read(fd, wr_data, wr_sz);
+        if (read(fd, buf, wr_sz) == -1) {
+            std::cerr << "Read Error: " << strerror(errno) << std::endl;
+            exit(1);
+        }
         lseek64(fd, 0, SEEK_SET);
-        write(fd, &wr_sz, wr_sz);
+        if (write(fd, buf, wr_sz) == -1) {
+            std::cerr << "Write Error: " << strerror(errno) << std::endl;
+            exit(1);
+        }
     }
     // Close the file.
-    close(fd);
+    auto b = close(fd);
+    if (b == -1) {
+        std::cerr << "Close Error: " << strerror(errno) << std::endl;
+        exit(1);
+    }
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     // Print columns: num_wr,direct,time
     std::cout << num_writes << ","
               << std::boolalpha << direct_io << ","
               << std::fixed << elapsed_seconds.count() * 1000 << std::endl;
-    free(wr_data);
+    free(buf);
 }
 
 // TODO: Run with `./fs_default /data/2GB.file < ./fs_default.testcase > ./fs_default_rand_wr.csv`.

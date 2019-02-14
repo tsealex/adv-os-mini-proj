@@ -1,0 +1,1 @@
+The experiments are conducted on a Ubuntu 18.04 machine that is running with AMD Ryzen 2700x CPU, 32GB of RAM and 1TB SSD (M.2 SATA). Applications that represent the workloads are written in C++, their outputs are in the csv format. Charts are generated from the output data in a Jupyter notebook using Python's plotly package.

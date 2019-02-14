@@ -3,3 +3,5 @@ records
 cmake-build-debug
 CMakeLists.txt
 *.file
+
+.ipynb_checkpoints
